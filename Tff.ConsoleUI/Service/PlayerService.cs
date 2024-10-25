@@ -1,4 +1,6 @@
-﻿using Tff.ConsoleUI.Models;
+﻿using System.Net;
+using Tff.ConsoleUI.Exceptions;
+using Tff.ConsoleUI.Models;
 using Tff.ConsoleUI.Models.ReturnModels;
 using Tff.ConsoleUI.Repsitory;
 
@@ -13,8 +15,8 @@ public class PlayerService : IPlayerService
         return new ReturnModel<Player>
         {
             Data = player,
-            Message = "Player Eklendi",
-            StatusCode = System.Net.HttpStatusCode.OK,
+            Message = "Oyuncu Eklendi",
+            StatusCode = HttpStatusCode.OK,
             Success = true
         };
     }
@@ -37,5 +39,43 @@ public class PlayerService : IPlayerService
     public ReturnModel<Player> Update(Guid id, Player player)
     {
         throw new NotImplementedException();
+    }
+
+    private ReturnModel<Player> ReturnModelOfException(Exception ex)
+    {
+
+
+        if (ex.GetType() == typeof(NotFoundException))
+        {
+            return new ReturnModel<Player>
+            {
+                Data = null,
+                Message = ex.Message,
+                Success = false,
+                StatusCode = HttpStatusCode.NotFound
+            };
+        }
+
+        if (ex.GetType() == typeof(ValidationException))
+        {
+            return new ReturnModel<Player>
+            {
+                Data = null,
+                Message = ex.Message,
+                Success = false,
+                StatusCode = HttpStatusCode.BadRequest
+            };
+        }
+
+
+        return new ReturnModel<Player>
+        {
+            Data = null,
+            Message = ex.Message,
+            Success = false,
+            StatusCode = HttpStatusCode.InternalServerError
+        };
+
+
     }
 }
